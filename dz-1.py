@@ -1,14 +1,16 @@
+from pprint import pprint
+
 with open('recipes.txt', 'r', encoding='utf-8') as file:
     cook_book = {}
     for dish in file:
-        count = int(file.readline().strip())
+        dish_name = dish.strip()
+        count = int(file.readline())
         temp_list = []
         for i in range(count):
             ingredient_name, quantity, measure = file.readline().split('|')
             temp_list.append(
-                {'ingredient_name': ingredient_name.strip(), 'quantity': quantity.strip(), 'measure': measure.strip()}
+                {'ingredient_name': ingredient_name, 'quantity': quantity, 'measure': measure.strip()}
             )
-        cook_book[dish.strip()] = temp_list
+        cook_book[dish_name] = temp_list
         file.readline()
-
-print(cook_book)
+    pprint(cook_book)
