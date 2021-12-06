@@ -1,31 +1,45 @@
 from pprint import pprint
 
-with open('recipes.txt', 'r', encoding='utf-8') as file:
-    cook_book = {}
-    for dish in file:
-        dish_name = dish.strip()
-        count = int(file.readline())
-        temp_list = []
-        for i in range(count):
-            ingredient_name, quantity, measure = file.readline().split('|')
-            temp_list.append(
-                {'ingredient_name': ingredient_name, 'quantity': quantity, 'measure': measure.strip()}
-            )
-        cook_book[dish_name] = temp_list
-        file.readline()
+
+def dict_collector(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file_work:
+        menu = {}
+        for line in file_work:
+            dish_name = line[:-1]
+            counter = file_work.readline().strip()
+            list_of_ingredient = []
+            for i in range(int(counter)):
+                dish_items = dict.fromkeys(['ingredient_name', 'quantity', 'measure'])
+                ingredient = file_work.readline().strip().split(' | ')
+                for item in ingredient:
+                    dish_items['ingredient_name'] = ingredient[0]
+                    dish_items['quantity'] = ingredient[1]
+                    dish_items['measure'] = ingredient[2]
+                list_of_ingredient.append(dish_items)
+                cook_book = {dish_name: list_of_ingredient}
+                menu.update(cook_book)
+            file_work.readline()
+    return menu
 
 
-def get_shop_list_by_dishes(dishes, person_count):
-    order = {}
+dict_collector('recipes.txt')
+
+
+def get_shop_list_by_dishes(dishes, persons):
+    menu = dict_collector('recipes.txt')
+    shopping_list = {}
     for dish in dishes:
-        for result in cook_book[dish]:
-            if result['ingredient_name'] in order.keys():
-                order[result['ingredient_name']]['quantity'] += int(result['quantity'])
+        for item in (menu[dish]):
+            items_list = dict([(item['ingredient_name'], {'measure': item['measure'],
+                                                          'quantity': int(item['quantity']) * persons})])
+            if shopping_list.get(item['ingredient_name']):
+                extra_item = (int(shopping_list[item['ingredient_name']]['quantity']) +
+                              int(items_list[item['ingredient_name']]['quantity']))
+                shopping_list[item['ingredient_name']]['quantity'] = extra_item
             else:
-                order[result['ingredient_name']] = {}
-                order[result['ingredient_name']]['measure'] = result['measure']
-                order[result['ingredient_name']]['quantity'] = int(result['quantity']) * person_count
-    return order
+                shopping_list.update(items_list)
+
+    pprint(shopping_list)
 
 
-pprint(get_shop_list_by_dishes(['Омлет', 'Омлет'], 2))
+get_shop_list_by_dishes(['Омлет', 'Омлет'], 2)
